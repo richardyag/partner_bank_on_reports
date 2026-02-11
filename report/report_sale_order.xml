@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template
+        id="report_saleorder_bank_info"
+        inherit_id="sale.report_saleorder_document"
+    >
+        <xpath expr="//div[@name='note']" position="after">
+            <t t-set="partner_bank" t-value="doc.partner_id.bank_ids[:1]" />
+            <div t-if="partner_bank" class="mt-3">
+                <strong>Bank Account Information:</strong>
+                <ul class="list-unstyled mb-0">
+                    <li t-if="partner_bank.bank_id">
+                        <strong>Bank: </strong>
+                        <span t-out="partner_bank.bank_id.name" />
+                    </li>
+                    <li>
+                        <strong>Account Number: </strong>
+                        <span t-out="partner_bank.acc_number" />
+                    </li>
+                    <li t-if="partner_bank.bank_id.bic">
+                        <strong>BIC/SWIFT: </strong>
+                        <span t-out="partner_bank.bank_id.bic" />
+                    </li>
+                    <li t-if="partner_bank.acc_holder_name">
+                        <strong>Account Holder: </strong>
+                        <span t-out="partner_bank.acc_holder_name" />
+                    </li>
+                </ul>
+            </div>
+        </xpath>
+    </template>
+</odoo>
