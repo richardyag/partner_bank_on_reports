@@ -7,16 +7,11 @@
         <xpath expr="//div[@name='comment']" position="after">
             <t t-set="pml" t-value="o.preferred_payment_method_line_id" />
             <t t-if="pml">
-                <t
-                    t-set="is_sepa"
-                    t-value="pml.payment_method_id.code == 'sepa_direct_debit'"
-                />
-                <t
-                    t-set="company_bank"
-                    t-value="pml.journal_id.bank_account_id"
-                />
+                <t t-set="pml_name" t-value="(pml.name or '').lower()" />
+                <t t-set="is_sepa" t-value="'sepa' in pml_name or pml.payment_method_id.code == 'sepa_direct_debit'" />
+                <t t-set="is_transfer" t-value="'transferencia' in pml_name and not is_sepa" />
                 <div class="mt-3">
-                    <!-- Domiciliación bancaria (SEPA): cuenta del cliente -->
+                    <!-- Sepa Direct Debit: cuenta del cliente -->
                     <t t-if="is_sepa">
                         <t t-set="partner_bank" t-value="o.partner_id.bank_ids[:1]" />
                         <t t-if="partner_bank">
@@ -37,25 +32,28 @@
                             </ul>
                         </t>
                     </t>
-                    <!-- Transferencia bancaria: cuenta de la empresa (del journal vinculado al método de pago) -->
-                    <t t-elif="company_bank">
-                        <strong>Datos bancarios para transferencia:</strong>
-                        <ul class="list-unstyled mb-0">
-                            <li t-if="company_bank.bank_id">
-                                <strong>Banco: </strong>
-                                <span t-out="company_bank.bank_id.name" />
-                            </li>
-                            <li>
-                                <strong>Número de cuenta: </strong>
-                                <span t-out="company_bank.acc_number" />
-                            </li>
-                            <li t-if="company_bank.bank_id.bic">
-                                <strong>BIC/SWIFT: </strong>
-                                <span t-out="company_bank.bank_id.bic" />
-                            </li>
-                        </ul>
+                    <!-- Transferencia: cuenta de la empresa desde el journal -->
+                    <t t-elif="is_transfer">
+                        <t t-set="company_bank" t-value="pml.journal_id.bank_account_id" />
+                        <t t-if="company_bank">
+                            <strong>Datos bancarios para transferencia:</strong>
+                            <ul class="list-unstyled mb-0">
+                                <li t-if="company_bank.bank_id">
+                                    <strong>Banco: </strong>
+                                    <span t-out="company_bank.bank_id.name" />
+                                </li>
+                                <li>
+                                    <strong>Número de cuenta: </strong>
+                                    <span t-out="company_bank.acc_number" />
+                                </li>
+                                <li t-if="company_bank.bank_id.bic">
+                                    <strong>BIC/SWIFT: </strong>
+                                    <span t-out="company_bank.bank_id.bic" />
+                                </li>
+                            </ul>
+                        </t>
                     </t>
-                    <!-- Efectivo / Tarjeta: solo nombre del método de pago -->
+                    <!-- Efectivo / Tarjeta de Crédito: solo nombre del método de pago -->
                     <t t-else="">
                         <strong>Método de pago: </strong>
                         <span t-out="pml.name" />
