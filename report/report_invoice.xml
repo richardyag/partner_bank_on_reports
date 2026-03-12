@@ -4,8 +4,11 @@
         id="report_invoice_bank_info"
         inherit_id="account.report_invoice_document"
     >
-        <xpath expr="//p[@name='payment_communication']" position="replace"/>
         <xpath expr="//div[@name='comment']" position="after">
+            <!-- Ocultar el bloque estándar de Odoo "Payment Communication / Comunicaciones de pago" -->
+            <style>
+                [name="payment_communication"] { display: none !important; }
+            </style>
             <t t-set="pml" t-value="o.preferred_payment_method_line_id" />
             <t t-if="pml">
                 <t t-set="pml_name" t-value="(pml.name or '').lower()" />
